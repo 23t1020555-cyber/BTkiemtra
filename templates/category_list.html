@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Danh mục - Quản lý sách{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>Danh mục sách</h1>
+    <a class="btn btn-primary" href="{{ url_for('category_create') }}">+ Thêm danh mục</a>
+  </div>
+
+  <div class="card">
+    {% if rows %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>STT</th><th>Tên danh mục</th><th>Mô tả</th><th class="num">Số sách</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for category, count in rows %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td><a href="{{ url_for('category_books', category_id=category.id) }}">{{ category.name }}</a></td>
+            <td class="muted">{{ category.description or "" }}</td>
+            <td class="num">{{ count }}</td>
+            <td class="num">
+              <a class="btn btn-light btn-sm" href="{{ url_for('category_books', category_id=category.id) }}">Xem sách</a>
+              <a class="btn btn-light btn-sm" href="{{ url_for('category_edit', category_id=category.id) }}">Sửa</a>
+              <form class="inline" method="post" action="{{ url_for('category_delete', category_id=category.id) }}"
+                    data-confirm="Xoá danh mục “{{ category.name }}”{% if count %} và {{ count }} sách trong đó{% endif %}?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-danger btn-sm" type="submit">Xoá</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty">
+      <p>Chưa có danh mục nào.</p>
+      <a class="btn btn-primary" href="{{ url_for('category_create') }}">+ Thêm danh mục</a>
+    </div>
+    {% endif %}
+  </div>
+{% endblock %}

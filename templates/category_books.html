@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} - Quản lý sách{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <a class="muted" href="{{ url_for('category_list') }}">← Danh mục</a>
+      <h1>{{ category.name }}</h1>
+      {% if category.description %}<p class="muted">{{ category.description }}</p>{% endif %}
+    </div>
+    <div class="actions">
+      <a class="btn btn-light" href="{{ url_for('category_edit', category_id=category.id) }}">Sửa danh mục</a>
+      <a class="btn btn-primary" href="{{ url_for('book_create', category_id=category.id) }}">+ Thêm sách</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <form class="actions search" method="get">
+      <input type="text" name="q" value="{{ q }}" placeholder="Tìm theo tên sách hoặc tác giả" aria-label="Tìm sách">
+      <button class="btn btn-light" type="submit">Tìm</button>
+      {% if q %}<a href="{{ url_for('category_books', category_id=category.id) }}">Bỏ lọc</a>{% endif %}
+    </form>
+
+    {% if books %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>STT</th><th>Tên sách</th><th>Tác giả</th><th>Năm</th><th class="num">Giá</th><th class="num">SL</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for book in books %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ book.title }}</td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.year or "" }}</td>
+            <td class="num">{{ book.price | vnd }}</td>
+            <td class="num">{% if book.quantity == 0 %}<span class="out-of-stock">Hết</span>{% else %}{{ book.quantity }}{% endif %}</td>
+            <td class="num">
+              <a class="btn btn-light btn-sm" href="{{ url_for('book_edit', book_id=book.id) }}">Sửa</a>
+              <form class="inline" method="post" action="{{ url_for('book_delete', book_id=book.id) }}"
+                    data-confirm="Xoá sách “{{ book.title }}”?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-danger btn-sm" type="submit">Xoá</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="muted count-note">{{ books | length }} sách{% if q %} khớp “{{ q }}”{% endif %}</p>
+    {% else %}
+    <div class="empty">
+      {% if q %}
+      <p>Không có sách nào khớp “{{ q }}”.</p>
+      {% else %}
+      <p>Danh mục này chưa có sách.</p>
+      <a class="btn btn-primary" href="{{ url_for('book_create', category_id=category.id) }}">+ Thêm sách</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+{% endblock %}

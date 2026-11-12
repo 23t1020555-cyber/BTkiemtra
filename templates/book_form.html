@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% set heading = "Sửa sách" if book else "Thêm sách" %}
+{% block title %}{{ heading }} - Quản lý sách{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>{{ heading }}</h1>
+  </div>
+
+  <div class="card form-card">
+    <form method="post" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="field">
+        <label for="title">Tên sách</label>
+        <input id="title" name="title" type="text" value="{{ form.title }}" maxlength="200" autofocus
+               {% if errors.title %}aria-invalid="true" aria-describedby="err-title"{% endif %}>
+        {% if errors.title %}<p class="error" id="err-title">{{ errors.title }}</p>{% endif %}
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="author">Tác giả</label>
+          <input id="author" name="author" type="text" value="{{ form.author }}" maxlength="100"
+                 {% if errors.author %}aria-invalid="true" aria-describedby="err-author"{% endif %}>
+          {% if errors.author %}<p class="error" id="err-author">{{ errors.author }}</p>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="category_id">Danh mục</label>
+          <select id="category_id" name="category_id"
+                  {% if errors.category_id %}aria-invalid="true" aria-describedby="err-category_id"{% endif %}>
+            <option value="">-- Chọn danh mục --</option>
+            {% for c in categories %}
+            <option value="{{ c.id }}"{% if form.category_id == (c.id | string) %} selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+          </select>
+          {% if errors.category_id %}<p class="error" id="err-category_id">{{ errors.category_id }}</p>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="year">Năm xuất bản (không bắt buộc)</label>
+          <input id="year" name="year" type="text" inputmode="numeric" value="{{ form.year }}"
+                 {% if errors.year %}aria-invalid="true" aria-describedby="err-year"{% endif %}>
+          {% if errors.year %}<p class="error" id="err-year">{{ errors.year }}</p>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="price">Giá (đồng)</label>
+          <input id="price" name="price" type="text" inputmode="numeric" value="{{ form.price }}" placeholder="Ví dụ: 45000"
+                 {% if errors.price %}aria-invalid="true" aria-describedby="err-price"{% endif %}>
+          {% if errors.price %}<p class="error" id="err-price">{{ errors.price }}</p>{% endif %}
+        </div>
+
+        <div class="field">
+          <label for="quantity">Số lượng</label>
+          <input id="quantity" name="quantity" type="text" inputmode="numeric" value="{{ form.quantity }}"
+                 {% if errors.quantity %}aria-invalid="true" aria-describedby="err-quantity"{% endif %}>
+          {% if errors.quantity %}<p class="error" id="err-quantity">{{ errors.quantity }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Lưu</button>
+        {% if form.category_id and form.category_id.isdigit() %}
+        <a class="btn btn-light" href="{{ url_for('category_books', category_id=form.category_id) }}">Huỷ</a>
+        {% else %}
+        <a class="btn btn-light" href="{{ url_for('dashboard') }}">Huỷ</a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+{% endblock %}

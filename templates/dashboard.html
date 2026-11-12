@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Tổng quan - Quản lý sách{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>Tổng quan</h1>
+    <div class="actions">
+      <a class="btn btn-light" href="{{ url_for('category_create') }}">+ Thêm danh mục</a>
+      <a class="btn btn-primary" href="{{ url_for('book_create') }}">+ Thêm sách</a>
+    </div>
+  </div>
+
+  <section class="stats">
+    <div class="stat"><p class="stat-label">Danh mục</p><p class="stat-value">{{ n_categories }}</p></div>
+    <div class="stat"><p class="stat-label">Đầu sách</p><p class="stat-value">{{ n_books }}</p></div>
+    <div class="stat"><p class="stat-label">Tổng số lượng tồn</p><p class="stat-value">{{ total_quantity }}</p></div>
+    <div class="stat"><p class="stat-label">Giá trị tồn kho</p><p class="stat-value">{{ stock_value | vnd }}</p></div>
+  </section>
+
+  {% if n_categories == 0 %}
+  <div class="card empty">
+    <p>Chưa có dữ liệu. Bạn có thể thêm danh mục đầu tiên hoặc nạp dữ liệu mẫu để xem thử.</p>
+    <div class="actions center">
+      <a class="btn btn-light" href="{{ url_for('category_create') }}">+ Thêm danh mục</a>
+      <form class="inline" method="post" action="{{ url_for('seed') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-primary" type="submit">Thêm dữ liệu mẫu</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <section class="card">
+    <h2>Sách theo danh mục</h2>
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>Danh mục</th><th class="num">Số sách</th><th class="col-bar">Tỷ lệ</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for category, count in rows %}
+          <tr>
+            <td><a href="{{ url_for('category_books', category_id=category.id) }}">{{ category.name }}</a></td>
+            <td class="num">{{ count }}</td>
+            <td><progress class="bar" value="{{ count }}" max="{{ max_count or 1 }}" aria-label="{{ count }} sách"></progress></td>
+            <td class="num">
+              <a class="btn btn-light btn-sm" href="{{ url_for('category_books', category_id=category.id) }}">Xem sách</a>
+              <a class="btn btn-light btn-sm" href="{{ url_for('category_edit', category_id=category.id) }}">Sửa</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Sách thêm gần đây</h2>
+    {% if recent %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>Tên sách</th><th>Tác giả</th><th>Danh mục</th><th class="num">Giá</th><th class="num">SL</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for book in recent %}
+          <tr>
+            <td>{{ book.title }}</td>
+            <td>{{ book.author }}</td>
+            <td><a href="{{ url_for('category_books', category_id=book.category_id) }}">{{ book.category.name }}</a></td>
+            <td class="num">{{ book.price | vnd }}</td>
+            <td class="num">{% if book.quantity == 0 %}<span class="out-of-stock">Hết</span>{% else %}{{ book.quantity }}{% endif %}</td>
+            <td class="num"><a class="btn btn-light btn-sm" href="{{ url_for('book_edit', book_id=book.id) }}">Sửa</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="muted">Chưa có cuốn sách nào. Bấm “+ Thêm sách” để bắt đầu.</p>
+    {% endif %}
+  </section>
+  {% endif %}
+{% endblock %}

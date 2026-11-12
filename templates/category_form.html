@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% set heading = "Sửa danh mục" if category else "Thêm danh mục" %}
+{% block title %}{{ heading }} - Quản lý sách{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>{{ heading }}</h1>
+  </div>
+
+  <div class="card form-card">
+    <form method="post" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="field">
+        <label for="name">Tên danh mục</label>
+        <input id="name" name="name" type="text" value="{{ form.name }}" maxlength="100" autofocus
+               {% if errors.name %}aria-invalid="true" aria-describedby="err-name"{% endif %}>
+        {% if errors.name %}<p class="error" id="err-name">{{ errors.name }}</p>{% endif %}
+      </div>
+
+      <div class="field">
+        <label for="description">Mô tả (không bắt buộc)</label>
+        <textarea id="description" name="description" rows="3" maxlength="255"
+                  {% if errors.description %}aria-invalid="true" aria-describedby="err-description"{% endif %}>{{ form.description }}</textarea>
+        {% if errors.description %}<p class="error" id="err-description">{{ errors.description }}</p>{% endif %}
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Lưu</button>
+        <a class="btn btn-light" href="{{ url_for('category_list') }}">Huỷ</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}
